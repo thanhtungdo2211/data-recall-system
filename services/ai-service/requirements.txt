@@ -1,0 +1,9 @@
+opencv-python-headless==4.8.0.76
+numpy==1.25.2
+pandas==1.4.2
+ultralytics==8.0.0
+kafka-python
+python-dotenv
+requests
+Pillow
+

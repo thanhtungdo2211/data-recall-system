@@ -1,0 +1,44 @@
+tests/backup/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+.spyderproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
+
+# Mac OS
+.DS_Store
+
+# Project specific (from your existing file)
+datasets_dnt_track/
+create_cred.sh
+kaggle.json
+services/airflow/config/
+services/airflow/plugins/
+services/airflow/logs/
+
