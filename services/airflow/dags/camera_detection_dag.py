@@ -7,9 +7,9 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from datetime import datetime, timedelta
 
-from tasks.kafka_consumer import consume_from_kafka
-from tasks.minio_storage import store_in_minio
-from tasks.postgres_writer import save_to_postgres
+from task_camera_detection.kafka_consumer import consume_from_kafka
+from task_camera_detection.minio_storage import store_in_minio
+from task_camera_detection.postgres_writer import save_to_postgres
 
 default_args = {
     'owner': 'airflow',

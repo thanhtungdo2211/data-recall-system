@@ -69,27 +69,27 @@ def download_images_from_minio(**kwargs):
     
     return "Downloaded images successfully"
 
-# Run incremental learning module
-def run_incremental_learning(**kwargs):
+# Run active learning module
+def run_active_learning(**kwargs):
     ti = kwargs['ti']
     downloaded_data = ti.xcom_pull(key='downloaded_data', task_ids='download_images_from_minio')
     
-    # TODO: Implement your incremental learning logic here
+    # TODO: Implement your active learning logic here
     # For example:
-    # from your_module import incremental_learning
-    # results = incremental_learning(downloaded_data)
+    # from your_module import active_learning
+    # results = active_learning(downloaded_data)
     
     # Placeholder for results
     results = [{"id": item["id"], "processed": True, "result": "placeholder"} for item in downloaded_data]
     
     kwargs['ti'].xcom_push(key='processed_results', value=results)
     
-    return "Incremental learning completed"
+    return "active learning completed"
 
 # Update database with results
 def update_database(**kwargs):
     ti = kwargs['ti']
-    results = ti.xcom_pull(key='processed_results', task_ids='run_incremental_learning')
+    results = ti.xcom_pull(key='processed_results', task_ids='run_active_learning')
     
     pg_hook = PostgresHook(postgres_conn_id="postgres_default")
     
@@ -117,9 +117,9 @@ default_args = {
 
 # Define the DAG
 dag = DAG(
-    'incremental_learning_filter',
+    'active_learning_filter',
     default_args=default_args,
-    description='A DAG to run incremental learning on images from MinIO',
+    description='A DAG to run active learning on images from MinIO',
     schedule_interval=timedelta(days=1),
     start_date=datetime(2023, 1, 1),
     catchup=False,
@@ -140,9 +140,9 @@ download_images_task = PythonOperator(
     dag=dag,
 )
 
-incremental_learning_task = PythonOperator(
-    task_id='run_incremental_learning',
-    python_callable=run_incremental_learning,
+active_learning_task = PythonOperator(
+    task_id='run_active_learning',
+    python_callable=run_active_learning,
     provide_context=True,
     dag=dag,
 )
@@ -155,4 +155,4 @@ update_db_task = PythonOperator(
 )
 
 # Define task dependencies
-extract_urls_task >> download_images_task >> incremental_learning_task >> update_db_task
+extract_urls_task >> download_images_task >> active_learning_task >> update_db_task

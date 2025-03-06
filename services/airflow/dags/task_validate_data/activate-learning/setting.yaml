@@ -1,0 +1,10 @@
+budget_uncertainty: 0.3
+budget_diversity: 0.8
+base_momentum: 0.99
+trainset: 'data_al.yaml'
+quality: "json/quality.json"
+uncertainty: "json/uncertainty.json"
+feat: 'json/new.npy'
+uncertainty_out: 'json/out.txt'
+score_thr: 0.01 
+floor_score_thr: 0.9
