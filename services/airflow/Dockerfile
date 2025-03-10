@@ -20,12 +20,13 @@ RUN apt-get update && \
 
 USER airflow
 
-RUN cd ${AIRFLOW_HOME} && \
-    cd dags/task_validate_data/activate-learning && \
-    pip install -e .
+# Copy dags FIRST, then install activate_learning
+COPY ./dags/ ${AIRFLOW_HOME}/dags/
 
 # Install Spark dependencies
 COPY ./requirements.txt ${AIRFLOW_HOME}/requirements.txt
 RUN pip install --no-cache-dir -r ${AIRFLOW_HOME}/requirements.txt
 
-COPY ./dags/ ${AIRFLOW_HOME}/dags/
+# Now install the activate_learning package AFTER copying dags
+RUN cd ${AIRFLOW_HOME}/dags/task_validate_data/active_learning && \
+    pip install -e .

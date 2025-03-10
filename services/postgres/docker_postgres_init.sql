@@ -66,8 +66,8 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Add sample data
-INSERT INTO detection_events (camera_id, timestamp, detection_count, bucket_name, original_frame_path)
-VALUES ('camera-demo', CURRENT_TIMESTAMP, 1, 'detection-frames', 'frames/demo/original/frame_001.jpg');
+-- INSERT INTO detection_events (camera_id, timestamp, detection_count, bucket_name, image_url)
+-- VALUES ('camera-demo', CURRENT_TIMESTAMP, 1, 'detection-frames', 'frames/demo/original/frame_001.jpg');
 
 -- Configurations for user postgres
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;

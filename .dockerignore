@@ -1,3 +1,7 @@
+# Local development
+__pycache__/
+services/central_storage
+
 # Python bytecode
 __pycache__/
 *.py[cod]

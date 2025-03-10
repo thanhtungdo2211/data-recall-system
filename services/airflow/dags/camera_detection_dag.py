@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.models import Variable
 from datetime import datetime, timedelta
 
 from task_camera_detection.kafka_consumer import consume_from_kafka

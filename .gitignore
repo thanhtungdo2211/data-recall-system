@@ -1,4 +1,6 @@
 tests/backup/
+services/central_storage/*
+services/ai_service/*
 
 # Byte-compiled / optimized files
 __pycache__/

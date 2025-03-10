@@ -3,7 +3,7 @@ import sqlalchemy
 from sqlalchemy.orm import Session
 from datetime import datetime
 import json
-from tasks.db_utils import DetectionEvents, Detections, Base
+from common.db_utils import DetectionEvents, Detections
 
 def save_to_postgres(host, port, database, user, password, **context):
     """Save detection metadata to PostgreSQL.
