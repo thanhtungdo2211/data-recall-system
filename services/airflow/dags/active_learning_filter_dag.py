@@ -261,7 +261,7 @@ def active_learning_task(**kwargs):
             "selected_paths": selected_images,
             "filtered_dir": filtered_dir
         }
-        
+
     except Exception as e:
         print(f"Error in active learning: {str(e)}")
         import traceback

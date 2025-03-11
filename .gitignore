@@ -1,5 +1,5 @@
 tests/backup/
-services/central_storage/*
+services/central-storage/*
 services/ai_service/*
 
 # Byte-compiled / optimized files
