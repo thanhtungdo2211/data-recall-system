@@ -3,7 +3,64 @@ x-airflow-common:
   # Use our custom image
   build: 
     context: ./services/airflow
-    dockerfile: Dockerfile
+    dockerfile: DockerfileBase
+  networks:
+    - network
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis-airflow:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+    AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    # Environment variables for our application
+    # CAMERA_URL: ${CAMERA_URL:-0}
+    # YOLO_MODEL_PATH: ${YOLO_MODEL_PATH:-yolov8n.pt}
+    # CONFIDENCE_THRESHOLD: ${CONFIDENCE_THRESHOLD:-0.5}
+    KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
+    KAFKA_TOPIC: ${KAFKA_TOPIC:-object-detection-events}
+    KAFKA_GROUP_ID: ${KAFKA_GROUP_ID:-object-detection-consumer-group}
+    MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+    MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+    MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+    MINIO_BUCKET: ${MINIO_BUCKET:-detection-frames}
+    POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  volumes:
+    - ./services/airflow/dags:/opt/airflow/dags
+    - ./services/airflow/logs:/opt/airflow/logs
+    - ./services/airflow/config:/opt/airflow/config
+    - ./services/airflow/plugins:/opt/airflow/plugins
+    - /dev/video0:/dev/video0  # Mount webcam if using local camera
+    - ./services/central-storage:/central-storage
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    &airflow-common-depends-on
+    redis-airflow:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+
+x-airflow-worker:
+  &airflow-worker
+  # Use our custom image
+  build: 
+    context: ./services/airflow
+    dockerfile: DockerfileWorker
   networks:
     - network
   environment:
@@ -100,7 +157,7 @@ services:
         condition: service_completed_successfully
 
   airflow-worker:
-    <<: *airflow-common
+    <<: *airflow-worker
     command: celery worker
     healthcheck:
       test:

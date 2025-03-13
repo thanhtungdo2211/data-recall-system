@@ -2,7 +2,7 @@ import json
 import numpy as np
 from collections import OrderedDict
 
-class Calibrated_Sampler():
+class CalibratedSampler():
     def __init__(self, n_images, score_thr, floor_score_thr, category_valid):
         self.n_images = n_images
         self.score_thr = score_thr

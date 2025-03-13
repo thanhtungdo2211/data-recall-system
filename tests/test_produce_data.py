@@ -199,7 +199,7 @@ def upload_yolo_dataset(
 if __name__ == "__main__":
     # Example usage
     result = upload_yolo_dataset(
-        yolo_dataset_path="/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/services/central-storage/dataset/human/train",
+        yolo_dataset_path="/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/services/central-storage/dataset/human/test",
         minio_endpoint="localhost:9000" ,
         minio_access_key="minioadmin",
         minio_secret_key="minioadmin",

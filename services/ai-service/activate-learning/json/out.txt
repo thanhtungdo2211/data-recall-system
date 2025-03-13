@@ -1,3 +1,0 @@
-/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/services/central-storage/dataset/human/test/images/rider-19_jpg.rf.ab65390bf77960359fe0e97d1cfc9d38.jpg
-/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/services/central-storage/dataset/human/test/images/rider-49_jpg.rf.9745d927b349534bbea6fcd219b06af4.jpg
-/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/services/central-storage/dataset/human/test/images/rider-17_jpg.rf.cd16269b0c1118b8ddd3f7cd64851a9e.jpg

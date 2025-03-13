@@ -238,17 +238,20 @@ class Quality:
                     self.class_momentum * self.base_momentum)
         return class_quality, class_momentum  
 
-    def import_dataset(self, data_config = '/home/mq/data_disk2T/Thang/bak/src/data1/data.yaml'):
-        data = yaml_load(data_config)
+    def import_dataset(self, nc = 0, names = None):
+        data = {
+            'nc': nc,
+            'names': names,
+        }
         dataset  = YOLODataset(img_path = self.img_path, data = data, task='detect')
-        self.train_loader = build_dataloader(dataset, batch=8, workers=4, shuffle=False)
-         
-    def __call__(self, trainset=None, out='quality.json'):
-        if isinstance(trainset, str):
-            self.import_dataset(trainset)
-        elif self.train_loader is not None:
-            self.train_loader = trainset
-        assert self.train_loader is not None
+        self.train_loader = build_dataloader(dataset, batch=8, workers=0, shuffle=False)
+           
+    def __call__(self,  nc = 0, names = None, out='quality.json'):
+        # if isinstance(names, str):
+        self.import_dataset(nc = nc, names = names)
+        # elif self.train_loader is not None:
+        #     self.train_loader = trainset
+        assert names is not None
         # t_weights, t_ckpt = attempt_load_one_weight(model_weights)
         # self.model.model.load(t_weights)
         
