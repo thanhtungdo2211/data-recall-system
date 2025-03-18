@@ -21,10 +21,10 @@ def auto_label(auto_label_config: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         dict: Results including count of processed images and labels
     """
     # Import task-specific dependencies inside function to avoid scheduler issues
-    sys.path.append('/opt/airflow/dags/task_validate_data/auto_label')
+    sys.path.append('/opt/airflow/dags/ai_services/auto_label')
     try:
-        from task_validate_data.auto_label.detect import AutoLabelSam2
-        from task_validate_data.auto_label.compare import CompareImage
+        from ai_services.auto_label.detect import AutoLabelSam2
+        from ai_services.auto_label.compare import CompareImage
     except ImportError as e:
         logging.error(f"Failed to import required modules: {e}")
         return {"error": str(e), "labeled_count": 0}

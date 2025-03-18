@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator #type: ignore
 
-from task_validate_data.active_learning_inference import active_learning_task
-from task_validate_data.data_produce import produce_yolo_dataset
-from task_validate_data.report_deepchecks import generate_reports
+from task_crawl_data.crawl_data import crawl_data
+from task_crawl_data.active_learning_inference import active_learning_task
+from task_crawl_data.auto_label_inference import auto_label
 
 # Load environment variables
 load_dotenv()
@@ -53,9 +53,25 @@ DATA_PROCESSING_CONFIG = {
     'target_class': 'human'
 }
 
+AUTO_LABEL_CONFIG = {
+    "example_path": '/central-storage/produced-dataset/human_detections/autolabel_data/examples/examples.jpg',
+    # "api_key": os.getenv('GEMINI_API_KEY'),
+    "api_key": "AIzaSyDM7E_-Iwz0t38_-w41B2XRAh_S80YoefY",
+    "delay": 5,
+    "labels_folder": '/central-storage/produced-dataset/human_detections/autolabel_data/processed_labels',
+    
+    # Model paths for AutoLabelSam2
+    "model_paths": {
+        "mlp": "/central-storage/produced-dataset/human_detections/autolabel_data/MLP_small_box_w1_fewshot.tar",
+        "point_decoder": "/central-storage/produced-dataset/human_detections/autolabel_data/point_decoder_vith.pth",
+        "sam2": "/central-storage/produced-dataset/human_detections/autolabel_data/sam2.1_hiera_large.pt",
+        "config": "configs/sam2.1/sam2.1_hiera_l.yaml"
+    }
+}
+
 # Define the DAG
 with DAG(
-    'validate_data_from_central_storage_pipeline',
+    'crawl_dataset_to_central_storage_pipeline',
     default_args=default_args,
     description='A DAG to run validate data on images from MinIO by active learning and auto label',
     schedule_interval=timedelta(days=1),
@@ -63,10 +79,11 @@ with DAG(
     catchup=False,
     tags=['ai', 'computer-vision', 'active-learning', 'auto-label'],
 ) as dag:
+
     # Define the produce data task
-    produce_data_task = PythonOperator(
+    crawl_data_task = PythonOperator(
         task_id='produce_yolo_dataset',
-        python_callable=produce_yolo_dataset,
+        python_callable=crawl_data,
         op_kwargs={
             'postgres_config': POSTGRES_CONFIG,
             'minio_config': MINIO_CONFIG,
@@ -83,20 +100,16 @@ with DAG(
         },
     )
     
-   # Deepchecks task and autolabel task will execute in parallel
-    deep_checks_task = PythonOperator(
-        task_id='deep_checks',
-        python_callable=generate_reports,
+    # Auto label task    
+    auto_label_task = PythonOperator(
+        task_id='auto_label',
+        python_callable=auto_label,
         op_kwargs={
-            'ds_repo_path': '/central-storage/produced-dataset/human_detections/dataset',
-            'save_path': '/central-storage/produced-dataset/human_detections/dataset/ds_val.html',
-            'img_ext': 'jpg'
+            'auto_label_config': AUTO_LABEL_CONFIG
         },
     )
-
-# Define the task dependencies
 (   
-    produce_data_task 
+    crawl_data_task 
     >> active_learning_filter_task
-    >> deep_checks_task
+    >> auto_label_task
 )

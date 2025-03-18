@@ -1,44 +1,38 @@
-def validate_data(train_path: str, test_path: str = None, save_path: str = 'ds_val.html', img_ext: str = 'jpg'):
-    """
-    Run DeepChecks validation on image datasets from separate directories.
-    
-    Args:
-        train_path: Path to directory containing training images
-        test_path: Path to directory containing test images (if None, will use train_path)
-        save_path: Path to save the validation HTML report
-        img_ext: Image extension (e.g., 'jpeg', 'jpg', 'png')
-    """
-    from deepchecks.vision import classification_dataset_from_directory
-    from deepchecks.vision.suites import train_test_validation
-    
-    # Use the same directory for both if test_path is not provided
-    test_path = test_path or train_path
-    
-    print(f"Loading training data from: {train_path}")
-    train_ds = classification_dataset_from_directory(
-        root=train_path, 
-        object_type='VisionData',
-        image_extension=img_ext
-    )
-    
-    print(f"Loading test data from: {test_path}")
-    test_ds = classification_dataset_from_directory(
-        root=test_path, 
-        object_type='VisionData',
-        image_extension=img_ext
-    )
-    
-    suite = train_test_validation()
-    print("Running data validation test suite")
-    result = suite.run(train_ds, test_ds)
-    result.save_as_html(save_path)
-    print(f'Finished data validation and saved report to {save_path}')
-    
-    return {
-        "report_path": save_path,
-        "train_images_count": len(train_ds),
-        "test_images_count": len(test_ds)
-    }
+import os
+from pathlib import Path
+from deepchecks.vision.vision_data.simple_classification_data import SimpleClassificationDataset 
+from deepchecks.vision.checks import ImagePropertyDrift
+from deepchecks.vision.suites import train_test_validation
+from deepchecks.vision import classification_dataset_from_directory
+from torch.utils.data import DataLoader
+from typing_extensions import Literal
+import torch
 
-# Example usage
-validate_data(train_path='/central-storage/dataset/human/train', test_path='/central-storageproduced-dataset/human_detections/dataset', save_path='/test/ds_val.html', img_ext='jpg')
+from deepchecks.vision.vision_data import VisionData
+
+def deepchecks_collate(batch):
+    """Process batch to deepchecks format."""
+    imgs, labels = zip(*batch)
+    return {'images': list(imgs), 'labels': list(labels)}
+
+check = ImagePropertyDrift()
+
+batch_size: int = 32
+num_workers: int = 0
+shuffle: bool = True
+pin_memory: bool = True
+
+train_dataset = SimpleClassificationDataset(root = "/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/tests/backup/trains/", image_extension='jpg')
+train_dataloader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers,
+                        collate_fn=deepchecks_collate, pin_memory=pin_memory, generator=torch.Generator())
+train_visiondata = VisionData(batch_loader=train_dataloader, label_map=train_dataset.reverse_classes_map,
+                                     task_type='classification')
+
+test_dataset = SimpleClassificationDataset(root = "/mnt/d/Personal/Programing/PersonalProjects/data-recall-system/tests/backup/trains/", image_extension='jpg')
+test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers,
+                        collate_fn=deepchecks_collate, pin_memory=pin_memory, generator=torch.Generator())
+test_visiondata = VisionData(batch_loader=test_dataloader, label_map=test_dataset.reverse_classes_map,
+                                     task_type='classification')
+
+result = check.run(train_dataset=train_visiondata, test_dataset=test_visiondata)
+print(result)

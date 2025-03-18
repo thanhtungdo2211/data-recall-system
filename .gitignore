@@ -1,6 +1,6 @@
 tests/backup/
 services/central-storage/*
-services/ai-service/*
+# services/ai-service/*
 
 .env
 
