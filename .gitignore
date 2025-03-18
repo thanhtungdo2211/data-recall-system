@@ -2,6 +2,8 @@ tests/backup/
 services/central-storage/*
 services/ai-service/*
 
+.env
+
 # Byte-compiled / optimized files
 __pycache__/
 *.py[cod]

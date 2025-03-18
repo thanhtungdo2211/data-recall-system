@@ -1,4 +1,4 @@
-FROM apache/airflow:2.8.3-python3.9
+FROM apache/airflow:2.10.0-python3.10
 USER root
 RUN apt-get update && \
     apt-get install -y \
@@ -9,8 +9,13 @@ RUN apt-get update && \
     libxext6 \
     libxrender-dev \
     ffmpeg \
+    git \  
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Create a directory for the cache
+    && mkdir -p /home/airflow/.cache/torch \
+    && chown -R airflow:0 /home/airflow/.cache \
+    && chmod -R 775 /home/airflow/.cache
 USER airflow
 COPY ./dags/ ${AIRFLOW_HOME}/dags/
 COPY ./requirements.txt ${AIRFLOW_HOME}/requirements.txt

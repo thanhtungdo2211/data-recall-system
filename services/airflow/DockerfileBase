@@ -1,5 +1,3 @@
-FROM apache/airflow:2.8.3-python3.9
+FROM apache/airflow:2.10.0-python3.10
 USER airflow
 COPY ./dags/ ${AIRFLOW_HOME}/dags/
-# COPY ./requirements-base.txt ${AIRFLOW_HOME}/requirements.txt
-# RUN pip install --no-cache-dir -r ${AIRFLOW_HOME}/requirements.txt

@@ -244,16 +244,11 @@ class Quality:
             'names': names,
         }
         dataset  = YOLODataset(img_path = self.img_path, data = data, task='detect')
-        self.train_loader = build_dataloader(dataset, batch=8, workers=0, shuffle=False)
+        self.train_loader = build_dataloader(dataset, batch=8, workers=0, shuffle=False) #TODO : scale workers
            
     def __call__(self,  nc = 0, names = None, out='quality.json'):
-        # if isinstance(names, str):
         self.import_dataset(nc = nc, names = names)
-        # elif self.train_loader is not None:
-        #     self.train_loader = trainset
         assert names is not None
-        # t_weights, t_ckpt = attempt_load_one_weight(model_weights)
-        # self.model.model.load(t_weights)
         
         for batch in TQDM(self.train_loader):
             self.class_quality, self.class_momentum = self.loss(self.model.model, batch)
@@ -261,7 +256,6 @@ class Quality:
             'class_quality': self.class_quality.tolist(),  # Chuyển tensor về list nếu là Tensor
         }
 
-        # Lưu vào file JSON
         with open(out, 'w') as f:
             json.dump(data, f)
 
