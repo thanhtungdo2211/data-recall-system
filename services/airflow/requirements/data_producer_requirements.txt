@@ -3,3 +3,7 @@ SQLAlchemy==1.4.49
 kafka-python==2.0.2 
 minio==7.1.15 
 psycopg2-binary==2.9.6
+
+deepchecks[vision]
+anywidget
+ipywidgets==7.1.2

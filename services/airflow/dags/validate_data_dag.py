@@ -7,7 +7,7 @@ from airflow.operators.python import PythonOperator
 
 from task_validate_data.active_learning_inference import active_learning_task
 from task_validate_data.data_produce import produce_yolo_dataset
-from task_validate_data.report_deepchecks import generate_reports
+from task_validate_data.report_deepchecks import export_deepchecks_report
 
 # Load environment variables
 load_dotenv()
@@ -53,6 +53,14 @@ DATA_PROCESSING_CONFIG = {
     'target_class': 'human'
 }
 
+REPORT_CONFIG = {
+    'train_dataset_path': '/central-storage/produced-dataset/human_detections/dataset/train',
+    'test_dataset_path': '/central-storage/produced-dataset/human_detections/dataset/test',
+    'output_report_path': '/central-storage/reports/validation_report.html',
+    'img_extension': 'jpg',
+    'batch_size': 16
+}
+
 # Define the DAG
 with DAG(
     'validate_data_from_central_storage_pipeline',
@@ -86,13 +94,10 @@ with DAG(
    # Deepchecks task and autolabel task will execute in parallel
     deep_checks_task = PythonOperator(
         task_id='deep_checks',
-        python_callable=generate_reports,
-        op_kwargs={
-            'ds_repo_path': '/central-storage/produced-dataset/human_detections/dataset',
-            'save_path': '/central-storage/produced-dataset/human_detections/dataset/ds_val.html',
-            'img_ext': 'jpg'
-        },
+        python_callable=export_deepchecks_report,
+        op_kwargs=REPORT_CONFIG
     )
+
 
 # Define the task dependencies
 (   

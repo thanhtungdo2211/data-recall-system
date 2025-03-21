@@ -50,7 +50,9 @@ ACTIVE_LEARNING_CONFIG = {
 # Data processing configuration
 DATA_PROCESSING_CONFIG = {
     'output_dir': '/central-storage/produced-dataset/human_detections/dataset',
-    'target_class': 'human'
+    'target_class': 'human',
+    'keywords': ['human', 'person standing', 'people walking'],
+    'num_images': 200  # Total images to attempt to download
 }
 
 AUTO_LABEL_CONFIG = {
@@ -82,11 +84,9 @@ with DAG(
 
     # Define the produce data task
     crawl_data_task = PythonOperator(
-        task_id='produce_yolo_dataset',
+        task_id='crawl_images',
         python_callable=crawl_data,
         op_kwargs={
-            'postgres_config': POSTGRES_CONFIG,
-            'minio_config': MINIO_CONFIG,
             'processing_config': DATA_PROCESSING_CONFIG
         },
     )

@@ -16,11 +16,21 @@ RUN apt-get update && \
     && mkdir -p /home/airflow/.cache/torch \
     && chown -R airflow:0 /home/airflow/.cache \
     && chmod -R 775 /home/airflow/.cache
+
 USER airflow
+
+# Copy DAGs
 COPY ./dags/ ${AIRFLOW_HOME}/dags/
-COPY ./requirements.txt ${AIRFLOW_HOME}/requirements.txt
-# RUN pip install --no-cache-dir -r ${AIRFLOW_HOME}/requirements.txt
-RUN pip install -r ${AIRFLOW_HOME}/requirements.txt
+
+# Copy requirements files and install them
+COPY ./requirements/ ${AIRFLOW_HOME}/requirements/
+
+# Install all requirements files
+RUN for req_file in $(ls ${AIRFLOW_HOME}/requirements/*_requirements.txt); do \
+        echo "Installing requirements from $req_file"; \
+        pip install -r $req_file; \
+    done
+
 # Install the active_learning package
 RUN cd ${AIRFLOW_HOME}/dags/task_validate_data/active_learning && \
     pip install -e .
